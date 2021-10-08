@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <!-- REACT LIBRARY -->
+  <script src="https://unpkg.com/react@15.5.4/dist/react.js"></script>
+  <!-- REACT DOM LIBRARY -->
+  <script src="https://unpkg.com/react-dom@15.5.4/dist/react-dom.js"></script>
+  <!-- BABEL LIBRARY -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.25.0/babel.min.js"></script>
+  <!-- CSS Link -->
+  <link rel="stylesheet" href="./style.css">
+  <title>Rick n Morty</title>
+</head>
+<body>
+
+  <div id="app">React has not rendered yet</div>
+
+  <script type="text/babel">
+
+  //Header
+  var Header = function() {
+  var headStyle = {
+    textAlign: "center",
+    fontSize: 24
+  }
+  return (
+  <h1 style={headStyle}> Rick and Morty Characters </h1>
+  );
+  }
+
+  class App extends React.Component {
+    constructor(props) {
+      super(props);
+      this.state = {
+        items: [],
+        value: '',
+        searchList: ''
+      };
+      this.handleChange = this.handleChange.bind(this);
+      this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+
+    componentDidMount() {
+      fetch('https://rickandmortyapi.com/api/character/')
+      .then(response => response.json())
+      .then(responseData => {
+        this.setState({
+          items: responseData.results.slice(0,6)
+        })
+      })
+      .catch(error => {
+        console.log('Fetching and parsing data error', error);
+      });
+    }
+
+    handleReset() {
+    window.parent.location = window.parent.location.href;
+    }
+
+    handleChange(event) {
+      this.setState({
+        value: event.target.value
+      });
+    }
+    handleSubmit(event) {
+      this.setState({
+        searchList: this.state.value
+      });
+      event.preventDefault();
+    }
+
+    render() {
+
+      if (this.state.searchList === this.state.value) {
+      var filteredItems = this.state.items.filter(item => {
+        return item.name.toLowerCase().includes(this.state.value.toLowerCase())
+      });
+    } else {
+      var filteredItems = this.state.items
+    }
+
+      return(
+          <div>
+          <div>
+          <form  className="searchBar" onSubmit={this.handleSubmit}>
+            <label>
+              <input type="text" className="searchBox" value={this.state.value} onChange={this.handleChange}/>
+            </label>
+            <input type="submit" className="button" value="Search"/>
+            <button type="button" className="button" onClick={this.handleReset}>Reset</button>
+          </form>
+          </div>
+          <div className="images">
+          {filteredItems.map(function(item) {
+            return <div key={item.id} className="card">
+            <img src={item.image}/>
+            <h3 className="name">{item.name}</h3>
+            <p className="details">Status: {item.status}</p>
+            <p className="details">Species: {item.species}</p>
+          </div>
+        })}
+          </div>
+        </div>
+      );
+    }
+  }
+
+    ReactDOM.render(
+    <div>
+    <Header/>
+    <App/>
+    </div>,
+    document.getElementById("app")
+    );
+
+  </script>
+</body>
+</html>
